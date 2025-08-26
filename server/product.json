@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "title": "Laptop",
+    "price": 1200,
+    "rating": 4.3,
+    "adjustedRating": 4.7
+  }
+]
