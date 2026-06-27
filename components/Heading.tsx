@@ -1,10 +1,13 @@
+import React from "react";
 
-import React from 'react'
-
-const Heading = ({ title } : { title: string }) => {
+const Heading = ({ title }: { title: string }) => {
   return (
-    <h2 className="text-white text-7xl font-extrabold text-center mt-20 max-lg:text-5xl">{ title }</h2>
-  )
-}
+    <div className="text-center mb-2">
+      <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        {title}
+      </h2>
+    </div>
+  );
+};
 
-export default Heading
+export default Heading;

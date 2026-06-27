@@ -1,27 +1,41 @@
-
 "use client";
 import { usePaginationStore } from "@/app/_zustand/paginationStore";
 import React from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const Pagination = () => {
-  // getting from Zustand store current page and methods for incrementing and decrementing current page
   const { page, incrementPage, decrementPage } = usePaginationStore();
+
   return (
-    <div className="join flex justify-center py-16">
+    <div className="flex items-center justify-center gap-2 py-12">
       <button
-        className="join-item btn btn-lg bg-blue-500 text-white hover:bg-white hover:text-blue-500"
         onClick={() => decrementPage()}
+        disabled={page <= 1}
+        className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        aria-label="Previous page"
       >
-        «
+        <FiChevronLeft className="text-sm" />
       </button>
-      <button className="join-item btn btn-lg bg-blue-500 text-white hover:bg-white hover:text-blue-500">
-        Page {page}
-      </button>
+
+      {/* Page numbers */}
+      {[Math.max(1, page - 1), page, page + 1].map((p) => (
+        <button
+          key={p}
+          className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${p === page
+              ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+              : "border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
+            }`}
+        >
+          {p}
+        </button>
+      ))}
+
       <button
-        className="join-item btn btn-lg bg-blue-500 text-white hover:bg-white hover:text-blue-500"
         onClick={() => incrementPage()}
+        className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all"
+        aria-label="Next page"
       >
-        »
+        <FiChevronRight className="text-sm" />
       </button>
     </div>
   );

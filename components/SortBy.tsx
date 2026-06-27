@@ -1,26 +1,25 @@
-
 "use client";
 import React from "react";
 import { useSortStore } from "@/app/_zustand/sortStore";
+import { FiArrowUpDown } from "react-icons/fi";
 
 const SortBy = () => {
-  // getting values from Zustand sort store
   const { sortBy, changeSortBy } = useSortStore();
 
   return (
-    <div className="flex items-center gap-x-5 max-lg:flex-col max-lg:w-full max-lg:items-start">
-      <h3 className="text-xl">Sort by:</h3>
+    <div className="flex items-center gap-2">
+      <FiArrowUpDown className="text-slate-400 text-sm flex-shrink-0" />
       <select
-        defaultValue={sortBy}
+        value={sortBy}
         onChange={(e) => changeSortBy(e.target.value)}
-        className="select border-gray-400 py-2 px-2 text-base border-2 select-bordered w-40 focus:outline-none outline-none max-lg:w-full bg-white"
+        className="text-sm text-slate-700 font-medium bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
         name="sort"
       >
-        <option value="defaultSort">Default</option>
-        <option value="titleAsc">Sort A-Z</option>
-        <option value="titleDesc">Sort Z-A</option>
-        <option value="lowPrice">Lowest Price</option>
-        <option value="highPrice">Highest Price</option>
+        <option value="defaultSort">Default Sort</option>
+        <option value="titleAsc">Name A → Z</option>
+        <option value="titleDesc">Name Z → A</option>
+        <option value="lowPrice">Price: Low to High</option>
+        <option value="highPrice">Price: High to Low</option>
       </select>
     </div>
   );

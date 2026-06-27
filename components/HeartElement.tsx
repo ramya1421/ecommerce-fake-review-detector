@@ -1,20 +1,22 @@
-
 "use client";
-import { useWishlistStore } from "@/app/_zustand/wishlistStore";
 import Link from "next/link";
 import React from "react";
-import { FaHeart } from "react-icons/fa6";
+import { FiHeart } from "react-icons/fi";
 
-const HeartElement = ({wishQuantity}: {wishQuantity: number}) => {
+const HeartElement = ({ wishQuantity }: { wishQuantity: number }) => {
   return (
-    <div className="relative">
-      <Link href="/wishlist">
-        <FaHeart className="text-2xl text-black" />
-        <span className="block w-6 h-6 font-bold bg-blue-600 text-white rounded-full flex justify-center items-center absolute top-[-17px] right-[-22px]">
-          { wishQuantity }
+    <Link
+      href="/wishlist"
+      className="relative w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-600 hover:text-red-500 transition-all"
+      aria-label="Wishlist"
+    >
+      <FiHeart className="text-lg" />
+      {wishQuantity > 0 && (
+        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5">
+          {wishQuantity > 99 ? "99+" : wishQuantity}
         </span>
-      </Link>
-    </div>
+      )}
+    </Link>
   );
 };
 

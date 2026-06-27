@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE } from "@/lib/api";
 import { DashboardSidebar } from "@/components";
 import { isValidEmailAddressFormat, isValidNameOrLastname } from "@/lib/utils";
 import Image from "next/image";
@@ -52,7 +53,7 @@ const AdminSingleOrder = () => {
   useEffect(() => {
     const fetchOrderData = async () => {
       const response = await fetch(
-        `http://localhost:3001/api/orders/${params?.id}`
+        `${API_BASE}/api/orders/${params?.id}`
       );
       const data: Order = await response.json();
       setOrder(data);
@@ -60,7 +61,7 @@ const AdminSingleOrder = () => {
 
     const fetchOrderProducts = async () => {
       const response = await fetch(
-        `http://localhost:3001/api/order-product/${params?.id}`
+        `${API_BASE}/api/order-product/${params?.id}`
       );
       const data: OrderProduct[] = await response.json();
       setOrderProducts(data);
@@ -98,7 +99,7 @@ const AdminSingleOrder = () => {
         return;
       }
 
-      fetch(`http://localhost:3001/api/orders/${order?.id}`, {
+      fetch(`${API_BASE}/api/orders/${order?.id}`, {
         method: "PUT", // or 'PUT'
         headers: {
           "Content-Type": "application/json",
@@ -126,11 +127,11 @@ const AdminSingleOrder = () => {
     };
 
     fetch(
-      `http://localhost:3001/api/order-product/${order?.id}`,
+      `${API_BASE}/api/order-product/${order?.id}`,
       requestOptions
     ).then((response) => {
       fetch(
-        `http://localhost:3001/api/orders/${order?.id}`,
+        `${API_BASE}/api/orders/${order?.id}`,
         requestOptions
       ).then((response) => {
         toast.success("Order deleted successfully");
@@ -140,10 +141,10 @@ const AdminSingleOrder = () => {
   };
 
   return (
-    <div className="bg-white flex justify-start max-w-screen-2xl mx-auto xl:h-full max-xl:flex-col max-xl:gap-y-5">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       <DashboardSidebar />
-      <div className="flex flex-col gap-y-7 xl:ml-5 w-full max-xl:px-5">
-        <h1 className="text-3xl font-semibold">Order details</h1>
+      <div className="flex flex-col gap-y-7 p-6 lg:p-8 w-full">
+        <h1 className="text-2xl font-extrabold text-slate-900">Order Details</h1>
         <div className="mt-5">
           <label className="w-full">
             <div>

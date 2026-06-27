@@ -1,9 +1,10 @@
+import { API_BASE } from "@/lib/api";
 'use server'
 
 import { revalidateTag } from "next/cache";
 
 export async function deleteWishItem(id: string){
-  await fetch(`http://localhost:3001/api/wishlist/${id}`, {
+  await fetch(`${API_BASE}/api/wishlist/${id}`, {
     method: "DELETE",
   });
 }

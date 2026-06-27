@@ -1,15 +1,14 @@
-
 "use client";
-
-
 
 import React from "react";
 import { useProductStore } from "@/app/_zustand/store";
 import toast from "react-hot-toast";
+import { FiShoppingCart } from "react-icons/fi";
 
-
-
-const AddToCartSingleProductBtn = ({ product, quantityCount } : SingleProductBtnProps) => {
+const AddToCartSingleProductBtn = ({
+  product,
+  quantityCount,
+}: SingleProductBtnProps) => {
   const { addToCart, calculateTotals } = useProductStore();
 
   const handleAddToCart = () => {
@@ -18,17 +17,19 @@ const AddToCartSingleProductBtn = ({ product, quantityCount } : SingleProductBtn
       title: product?.title,
       price: product?.price,
       image: product?.mainImage,
-      amount: quantityCount
+      amount: quantityCount,
     });
     calculateTotals();
-    toast.success("Product added to the cart");
+    toast.success("Added to cart!");
   };
+
   return (
     <button
       onClick={handleAddToCart}
-      className="btn w-[200px] text-lg border border-gray-300 border-1 font-normal bg-white text-blue-500 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:scale-110 transition-all uppercase ease-in max-[500px]:w-full"
+      className="flex items-center justify-center gap-2 btn-primary-custom w-full sm:w-auto"
     >
-      Add to cart
+      <FiShoppingCart className="text-base" />
+      Add to Cart
     </button>
   );
 };

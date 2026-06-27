@@ -1,14 +1,16 @@
 "use client";
 
-import {
-  CustomButton,
-  QuantityInput,
-  QuantityInputCart,
-  SectionTitle,
-} from "@/components";
+import { QuantityInputCart } from "@/components";
 import Image from "next/image";
 import React from "react";
-import { FaCheck, FaClock, FaCircleQuestion, FaXmark } from "react-icons/fa6";
+import {
+  FiCheck,
+  FiClock,
+  FiTrash2,
+  FiShoppingBag,
+  FiArrowRight,
+  FiTag,
+} from "react-icons/fi";
 import { useProductStore } from "../_zustand/store";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -20,178 +22,162 @@ const CartPage = () => {
   const handleRemoveItem = (id: string) => {
     removeFromCart(id);
     calculateTotals();
-    toast.success("Product removed from the cart");
+    toast.success("Item removed from cart");
   };
 
+  const shipping = 5;
+  const tax = +(total / 5).toFixed(2);
+  const orderTotal = total === 0 ? 0 : Math.round(total + tax + shipping);
+
   return (
-    <div className="bg-white">
-      <SectionTitle title="Cart Page" path="Home | Cart" />
-      <div className="bg-white">
-        <div className="mx-auto max-w-2xl px-4 pb-24 pt-16 sm:px-6 lg:max-w-7xl lg:px-8">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="section-container py-12">
+        {/* Page title */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-extrabold text-slate-900">
             Shopping Cart
           </h1>
-          <form className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
-            <section aria-labelledby="cart-heading" className="lg:col-span-7">
-              <h2 id="cart-heading" className="sr-only">
-                Items in your shopping cart
-              </h2>
+          <p className="text-slate-500 text-sm mt-1">
+            {products.length === 0
+              ? "Your cart is empty"
+              : `${products.length} item${products.length > 1 ? "s" : ""} in your cart`}
+          </p>
+        </div>
 
-              <ul
-                role="list"
-                className="divide-y divide-gray-200 border-b border-t border-gray-200"
-              >
-                {products.map((product) => (
-                  <li key={product.id} className="flex py-6 sm:py-10">
-                    <div className="flex-shrink-0">
-                      <Image
-                        width={192}
-                        height={192}
-                        src={product?.image ? `/${product.image}` : "/product_placeholder.jpg"}
-                        alt="laptop image"
-                        className="h-24 w-24 rounded-md object-cover object-center sm:h-48 sm:w-48"
-                      />
+        {products.length === 0 ? (
+          /* Empty state */
+          <div className="card-premium p-16 text-center max-w-md mx-auto">
+            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <FiShoppingBag className="text-3xl text-slate-400" />
+            </div>
+            <h2 className="text-lg font-bold text-slate-900 mb-2">
+              Your cart is empty
+            </h2>
+            <p className="text-sm text-slate-500 mb-6">
+              Looks like you haven&apos;t added any products yet.
+            </p>
+            <Link href="/shop" className="btn-primary-custom inline-flex items-center gap-2">
+              <FiShoppingBag className="text-sm" /> Browse Products
+            </Link>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            {/* Cart items */}
+            <div className="lg:col-span-7 space-y-3">
+              {products.map((product) => (
+                <div
+                  key={product.id}
+                  className="card-premium p-4 flex gap-4 animate-fade-in"
+                >
+                  {/* Image */}
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <Image
+                      width={96}
+                      height={96}
+                      src={
+                        product?.image
+                          ? `/${product.image}`
+                          : "/product_placeholder.jpg"
+                      }
+                      alt={product.title}
+                      className="object-contain w-full h-full"
+                    />
+                  </div>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link href="#" className="font-semibold text-slate-800 text-sm hover:text-blue-600 transition-colors line-clamp-2">
+                        {product.title}
+                      </Link>
+                      <button
+                        onClick={() => handleRemoveItem(product.id)}
+                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all flex-shrink-0"
+                        aria-label="Remove item"
+                      >
+                        <FiTrash2 className="text-sm" />
+                      </button>
                     </div>
-
-                    <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
-                      <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
-                        <div>
-                          <div className="flex justify-between">
-                            <h3 className="text-sm">
-                              <Link
-                                href={`#`}
-                                className="font-medium text-gray-700 hover:text-gray-800"
-                              >
-                                {product.title}
-                              </Link>
-                            </h3>
-                          </div>
-                          {/* <div className="mt-1 flex text-sm">
-                        <p className="text-gray-500">{product.color}</p>
-                        {product.size ? (
-                          <p className="ml-4 border-l border-gray-200 pl-4 text-gray-500">{product.size}</p>
-                        ) : null}
-                      </div> */}
-                          <p className="mt-1 text-sm font-medium text-gray-900">
-                            ${product.price}
-                          </p>
-                        </div>
-
-                        <div className="mt-4 sm:mt-0 sm:pr-9">
-                          <QuantityInputCart product={product} />
-                          <div className="absolute right-0 top-0">
-                            <button
-                              onClick={() => handleRemoveItem(product.id)}
-                              type="button"
-                              className="-m-2 inline-flex p-2 text-gray-400 hover:text-gray-500"
-                            >
-                              <span className="sr-only">Remove</span>
-                              <FaXmark className="h-5 w-5" aria-hidden="true" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="mt-4 flex space-x-2 text-sm text-gray-700">
-                        {1 ? (
-                          <FaCheck
-                            className="h-5 w-5 flex-shrink-0 text-green-500"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <FaClock
-                            className="h-5 w-5 flex-shrink-0 text-gray-300"
-                            aria-hidden="true"
-                          />
-                        )}
-
-                        <span>{1 ? "In stock" : `Ships in 3 days`}</span>
-                      </p>
+                    <p className="text-blue-600 font-bold mt-1">
+                      ${product.price}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1 text-xs text-green-600">
+                      <FiCheck className="text-xs" /> In stock
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
+                    <div className="mt-2">
+                      <QuantityInputCart product={product} />
+                    </div>
+                  </div>
+
+                  {/* Line total */}
+                  <div className="hidden sm:flex items-center text-sm font-bold text-slate-900 flex-shrink-0">
+                    ${(product.price * product.amount).toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
 
             {/* Order summary */}
-            <section
-              aria-labelledby="summary-heading"
-              className="mt-16 rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
-            >
-              <h2
-                id="summary-heading"
-                className="text-lg font-medium text-gray-900"
-              >
-                Order summary
-              </h2>
+            <div className="lg:col-span-5">
+              <div className="card-premium p-6 sticky top-24 space-y-4">
+                <h2 className="font-bold text-slate-900 text-base">
+                  Order Summary
+                </h2>
 
-              <dl className="mt-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm text-gray-600">Subtotal</dt>
-                  <dd className="text-sm font-medium text-gray-900">
-                    ${total}
-                  </dd>
+                {/* Coupon */}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <FiTag className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                    <input
+                      type="text"
+                      placeholder="Coupon code"
+                      className="input-premium pl-9 text-sm py-2.5"
+                    />
+                  </div>
+                  <button className="btn-secondary-custom text-sm py-2.5 px-4">
+                    Apply
+                  </button>
                 </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="flex items-center text-sm text-gray-600">
-                    <span>Shipping estimate</span>
-                    <a
-                      href="#"
-                      className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-                    >
-                      <span className="sr-only">
-                        Learn more about how shipping is calculated
-                      </span>
-                      <FaCircleQuestion
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                      />
-                    </a>
-                  </dt>
-                  <dd className="text-sm font-medium text-gray-900">$5.00</dd>
+
+                <div className="space-y-3 text-sm border-t border-slate-100 pt-4">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Subtotal</span>
+                    <span className="font-medium text-slate-900">${total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <div className="flex items-center gap-1">
+                      <span>Shipping</span>
+                      <FiClock className="text-xs text-slate-400" />
+                    </div>
+                    <span className="font-medium text-slate-900">${shipping.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Tax (20%)</span>
+                    <span className="font-medium text-slate-900">${tax}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-slate-900 text-base border-t border-slate-100 pt-3">
+                    <span>Total</span>
+                    <span className="text-blue-600">${orderTotal}</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="flex text-sm text-gray-600">
-                    <span>Tax estimate</span>
-                    <a
-                      href="#"
-                      className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-                    >
-                      <span className="sr-only">
-                        Learn more about how tax is calculated
-                      </span>
-                      <FaCircleQuestion
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                      />
-                    </a>
-                  </dt>
-                  <dd className="text-sm font-medium text-gray-900">
-                    ${total / 5}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="text-base font-medium text-gray-900">
-                    Order total
-                  </dt>
-                  <dd className="text-base font-medium text-gray-900">
-                    ${total === 0 ? 0 : Math.round(total + total / 5 + 5)}
-                  </dd>
-                </div>
-              </dl>
-              {products.length > 0 && (
-                <div className="mt-6">
-                  <Link
-                    href="/checkout"
-                    className="block flex justify-center items-center w-full uppercase bg-white px-4 py-3 text-base border border-black border-gray-300 font-bold text-blue-600 shadow-sm hover:bg-black hover:bg-gray-100 focus:outline-none focus:ring-2"
-                  >
-                    <span>Checkout</span>
-                  </Link>
-                </div>
-              )}
-            </section>
-          </form>
-        </div>
+
+                <Link
+                  href="/checkout"
+                  className="w-full flex items-center justify-center gap-2 btn-primary-custom mt-2"
+                >
+                  Proceed to Checkout <FiArrowRight className="text-sm" />
+                </Link>
+
+                <Link
+                  href="/shop"
+                  className="w-full flex items-center justify-center gap-2 btn-secondary-custom text-sm"
+                >
+                  Continue Shopping
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

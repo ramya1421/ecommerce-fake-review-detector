@@ -1,46 +1,52 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import {
-  Breadcrumb,
-  Filters,
-  Pagination,
-  Products,
-  SortBy,
-} from "@/components";
+import { Breadcrumb, Filters, Pagination, Products, SortBy } from "@/components";
 import React from "react";
 
-// improve readabillity of category text, for example category text "smart-watches" will be "smart watches"
 const improveCategoryText = (text: string): string => {
-  if (text.indexOf("-") !== -1) {
-    let textArray = text.split("-");
-
-    return textArray.join(" ");
-  } else {
-    return text;
+  if (text?.indexOf("-") !== -1) {
+    return text.split("-").join(" ");
   }
+  return text ?? "";
 };
 
 const ShopPage = (slug: any) => {
-  
-  return (
-    <div className="text-black bg-white">
-      <div className=" max-w-screen-2xl mx-auto px-10 max-sm:px-5">
-        <Breadcrumb />
-        <div className="grid grid-cols-[200px_1fr] gap-x-10 max-md:grid-cols-1 max-md:gap-y-5">
-          <Filters />
-          <div>
-            <div className="flex justify-between items-center max-lg:flex-col max-lg:gap-y-5">
-              <h2 className="text-2xl font-bold max-sm:text-xl max-[400px]:text-lg uppercase">
-                {slug?.params?.slug && slug?.params?.slug[0]?.length > 0
-                  ? improveCategoryText(slug?.params?.slug[0])
-                  : "All products"}
-              </h2>
+  const categoryName =
+    slug?.params?.slug && slug?.params?.slug[0]?.length > 0
+      ? improveCategoryText(slug?.params?.slug[0])
+      : null;
 
+  return (
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="section-container py-8">
+        <Breadcrumb />
+
+        <div className="grid md:grid-cols-[240px_1fr] gap-6 items-start">
+          {/* Filters sidebar */}
+          <div className="md:sticky md:top-24">
+            <Filters />
+          </div>
+
+          {/* Main content */}
+          <div>
+            {/* Header row */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <div>
+                <h1 className="text-xl font-extrabold text-slate-900 capitalize">
+                  {categoryName ?? "All Products"}
+                </h1>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Showing results with AI-verified review scores
+                </p>
+              </div>
               <SortBy />
             </div>
-            <div className="divider"></div>
+
+            {/* Products grid */}
             <Products slug={slug} />
+
+            {/* Pagination */}
             <Pagination />
           </div>
         </div>

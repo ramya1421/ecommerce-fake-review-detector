@@ -1,26 +1,45 @@
-import Link from 'next/link'
- 
+import Link from "next/link";
+import { FiHome, FiArrowLeft } from "react-icons/fi";
+
 export default function NotFound() {
   return (
-    <>
-      <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
-        <div className="text-center">
-          <p className="text-lg font-semibold bg-blue-500  text-white border border-1 border-black py-2 rounded-full w-16 mx-auto">404</p>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-black sm:text-5xl">Page not found</h1>
-          <p className="mt-6 text-base leading-7 text-black">Sorry, we couldn’t find the page you’re looking for.</p>
-          <div className="mt-10 flex items-center justify-center gap-x-6 max-[350px]:flex-col max-[350px]:gap-y-5">
-            <Link
-              href="/"
-              className="rounded-md bg-blue-500 border border-1 border-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:text-blue-500 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            >
-              Go back home
-            </Link>
-            <Link href="#" className="text-sm font-semibold text-black hover:underline hover:underline-offset-4">
-              Contact support <span aria-hidden="true">&rarr;</span>
-            </Link>
+    <main className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-6 py-24">
+      <div className="text-center animate-slide-up max-w-md">
+        {/* 404 visual */}
+        <div className="relative inline-block mb-8">
+          <div className="text-[120px] font-extrabold text-slate-100 leading-none select-none">
+            404
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-card px-6 py-3">
+              <p className="text-blue-600 font-bold text-lg">Page Not Found</p>
+            </div>
           </div>
         </div>
-      </main>
-    </>
-  )
+
+        <h1 className="text-2xl font-extrabold text-slate-900 mb-3">
+          Oops, this page doesn&apos;t exist
+        </h1>
+        <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+          The page you&apos;re looking for may have been moved, deleted, or never
+          existed. Let&apos;s get you back on track.
+        </p>
+
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 btn-primary-custom"
+          >
+            <FiHome className="text-sm" /> Go Home
+          </Link>
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 btn-secondary-custom"
+          >
+            <FiArrowLeft className="text-sm" /> Browse Shop
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
 }

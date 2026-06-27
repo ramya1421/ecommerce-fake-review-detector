@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE } from "@/lib/api";
 import { DashboardSidebar } from "@/components";
 import { isValidEmailAddressFormat } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
@@ -28,7 +29,7 @@ const DashboardCreateNewUser = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(userInput),
         };
-        fetch(`http://localhost:3001/api/users`, requestOptions)
+        fetch(`${API_BASE}/api/users`, requestOptions)
           .then((response) => {
             if(response.status === 201){
               return response.json();

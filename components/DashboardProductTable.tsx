@@ -1,120 +1,144 @@
-
 "use client";
+import { API_BASE } from "@/lib/api";
 import { nanoid } from "nanoid";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import CustomButton from "./CustomButton";
+import { FiPlus, FiBox, FiSearch, FiMoreHorizontal } from "react-icons/fi";
 
 const DashboardProductTable = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/products?mode=admin", {cache: "no-store"})
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data);
-      });
+    fetch(`${API_BASE}/api/products?mode=admin`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
   }, []);
 
+  const filtered = products.filter((p) =>
+    p.title?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="w-full">
-      <h1 className="text-3xl font-semibold text-center mb-5">All products</h1>
-      <div className="flex justify-end mb-5">
-        <Link href="/admin/products/new">
-          <CustomButton
-            buttonType="button"
-            customWidth="110px"
-            paddingX={10}
-            paddingY={5}
-            textSize="base"
-            text="Add new product"
-          />
+    <div className="p-6 lg:p-8">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+            <FiBox className="text-blue-600" /> Products
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            {products.length} products total
+          </p>
+        </div>
+        <Link
+          href="/admin/products/new"
+          className="inline-flex items-center gap-2 btn-primary-custom text-sm"
+        >
+          <FiPlus /> Add Product
         </Link>
       </div>
 
-      <div className="xl:ml-5 w-full max-xl:mt-5 overflow-auto w-full h-[80vh]">
-        <table className="table table-md table-pin-cols">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>
-                <label>
-                  <input type="checkbox" className="checkbox" />
-                </label>
-              </th>
-              <th>Product</th>
-              <th>Stock Availability</th>
-              <th>Price</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* row 1 */}
-            {products &&
-              products.map((product) => (
-                <tr key={nanoid()}>
-                  <th>
-                    <label>
-                      <input type="checkbox" className="checkbox" />
-                    </label>
-                  </th>
+      {/* Search */}
+      <div className="relative mb-5 max-w-sm">
+        <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input-premium pl-10"
+        />
+      </div>
 
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <div className="avatar">
-                        <div className="mask mask-squircle w-12 h-12">
+      {/* Table */}
+      <div className="card-premium overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 border-b border-slate-100">
+              <tr>
+                <th className="text-left py-3 px-5 text-xs font-bold uppercase tracking-wide text-slate-500 w-8">
+                  <input type="checkbox" className="checkbox w-4 h-4" />
+                </th>
+                <th className="text-left py-3 px-5 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Product
+                </th>
+                <th className="text-left py-3 px-5 text-xs font-bold uppercase tracking-wide text-slate-500 hidden md:table-cell">
+                  Stock
+                </th>
+                <th className="text-left py-3 px-5 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Price
+                </th>
+                <th className="py-3 px-5 w-12" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-12 text-slate-400 text-sm">
+                    No products found
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((product) => (
+                  <tr key={nanoid()} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3 px-5">
+                      <input type="checkbox" className="checkbox w-4 h-4" />
+                    </td>
+                    <td className="py-3 px-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0">
                           <Image
-                            width={48}
-                            height={48}
-                            src={product?.mainImage ? `/${product?.mainImage}` : "/product_placeholder.jpg"}
-                            alt="Avatar Tailwind CSS Component"
-                            className="w-auto h-auto"
+                            width={40}
+                            height={40}
+                            src={
+                              product?.mainImage
+                                ? `/${product?.mainImage}`
+                                : "/product_placeholder.jpg"
+                            }
+                            alt={product?.title}
+                            className="object-contain w-full h-full"
                           />
                         </div>
-                      </div>
-                      <div>
-                        <div className="font-bold">{product?.title}</div>
-                        <div className="text-sm opacity-50">
-                          {product?.manufacturer}
+                        <div>
+                          <p className="font-semibold text-slate-800 line-clamp-1">
+                            {product?.title}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {product?.manufacturer}
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  </td>
-
-                  <td>
-                    { product?.inStock ? (<span className="badge badge-success text-white badge-sm">
-                      In stock
-                    </span>) : (<span className="badge badge-error text-white badge-sm">
-                      Out of stock
-                    </span>) }
-                    
-                  </td>
-                  <td>${product?.price}</td>
-                  <th>
-                    <Link
-                      href={`/admin/products/${product.id}`}
-                      className="btn btn-ghost btn-xs"
-                    >
-                      details
-                    </Link>
-                  </th>
-                </tr>
-              ))}
-          </tbody>
-          {/* foot */}
-          <tfoot>
-            <tr>
-              <th></th>
-              <th>Product</th>
-              <th>Stock Availability</th>
-              <th>Price</th>
-              <th></th>
-            </tr>
-          </tfoot>
-        </table>
+                    </td>
+                    <td className="py-3 px-5 hidden md:table-cell">
+                      <span
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-full ${product?.inStock
+                            ? "bg-green-50 text-green-700"
+                            : "bg-red-50 text-red-500"
+                          }`}
+                      >
+                        {product?.inStock ? "In Stock" : "Out of Stock"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-5 font-bold text-slate-900">
+                      ${product?.price}
+                    </td>
+                    <td className="py-3 px-5">
+                      <Link
+                        href={`/admin/products/${product.id}`}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors"
+                        aria-label="Product details"
+                      >
+                        <FiMoreHorizontal className="text-base" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

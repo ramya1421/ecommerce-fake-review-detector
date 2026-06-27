@@ -1,4 +1,3 @@
-
 import React from "react";
 
 interface CustomButtonProps {
@@ -16,14 +15,12 @@ const CustomButton = ({
   text,
   buttonType,
   customWidth,
-  textSize
+  textSize,
 }: CustomButtonProps) => {
-
-
   return (
     <button
-      type={`${buttonType}`}
-      className={`${customWidth !== "no" && `w-${customWidth}`} uppercase bg-white px-${paddingX} py-${paddingY} text-${textSize} border border-black border-gray-300 font-bold text-blue-600 shadow-sm hover:bg-black hover:bg-gray-100 focus:outline-none focus:ring-2`}
+      type={buttonType}
+      className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 active:scale-[.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm"
     >
       {text}
     </button>

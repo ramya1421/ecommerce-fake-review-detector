@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE } from "@/lib/api";
 import { DashboardSidebar } from "@/components";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -27,7 +28,7 @@ const DashboardSingleUserPage = ({
     const requestOptions = {
       method: "DELETE",
     };
-    fetch(`http://localhost:3001/api/users/${id}`, requestOptions)
+    fetch(`${API_BASE}/api/users/${id}`, requestOptions)
       .then((response) => {
         if (response.status === 204) {
           toast.success("User deleted successfully");
@@ -62,7 +63,7 @@ const DashboardSingleUserPage = ({
             role: userInput.role,
           }),
         };
-        fetch(`http://localhost:3001/api/users/${id}`, requestOptions)
+        fetch(`${API_BASE}/api/users/${id}`, requestOptions)
           .then((response) => {
             if (response.status === 200) {
               return response.json();
@@ -86,7 +87,7 @@ const DashboardSingleUserPage = ({
 
   useEffect(() => {
     // sending API request for a single user
-    fetch(`http://localhost:3001/api/users/${id}`)
+    fetch(`${API_BASE}/api/users/${id}`)
       .then((res) => {
         return res.json();
       })
@@ -100,10 +101,10 @@ const DashboardSingleUserPage = ({
   }, [id]);
 
   return (
-    <div className="bg-white flex justify-start max-w-screen-2xl mx-auto xl:h-full max-xl:flex-col max-xl:gap-y-5">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       <DashboardSidebar />
-      <div className="flex flex-col gap-y-7 xl:pl-5 max-xl:px-5 w-full">
-        <h1 className="text-3xl font-semibold">User details</h1>
+      <div className="flex flex-col gap-y-7 p-6 lg:p-8 max-xl:px-5 w-full">
+        <h1 className="text-2xl font-extrabold text-slate-900">User Details</h1>
         <div>
           <label className="form-control w-full max-w-xs">
             <div className="label">

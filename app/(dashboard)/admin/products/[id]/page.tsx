@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE } from "@/lib/api";
 import { CustomButton, DashboardSidebar, SectionTitle } from "@/components";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -27,7 +28,7 @@ const DashboardProductDetails = ({
     const requestOptions = {
       method: "DELETE",
     };
-    fetch(`http://localhost:3001/api/products/${id}`, requestOptions)
+    fetch(`${API_BASE}/api/products/${id}`, requestOptions)
       .then((response) => {
         if (response.status !== 204) {
           if (response.status === 400) {
@@ -65,7 +66,7 @@ const DashboardProductDetails = ({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
     };
-    fetch(`http://localhost:3001/api/products/${id}`, requestOptions)
+    fetch(`${API_BASE}/api/products/${id}`, requestOptions)
       .then((response) => {
         if (response.status === 200) {
           return response.json();
@@ -85,7 +86,7 @@ const DashboardProductDetails = ({
     formData.append("uploadedFile", file);
 
     try {
-      const response = await fetch("http://localhost:3001/api/main-image", {
+      const response = await fetch(`${API_BASE}/api/main-image`, {
         method: "POST",
         body: formData,
       });
@@ -103,7 +104,7 @@ const DashboardProductDetails = ({
 
   // fetching main product data including other product images
   const fetchProductData = async () => {
-    fetch(`http://localhost:3001/api/products/${id}`)
+    fetch(`${API_BASE}/api/products/${id}`)
       .then((res) => {
         return res.json();
       })
@@ -111,7 +112,7 @@ const DashboardProductDetails = ({
         setProduct(data);
       });
 
-    const imagesData = await fetch(`http://localhost:3001/api/images/${id}`, {
+    const imagesData = await fetch(`${API_BASE}/api/images/${id}`, {
       cache: "no-store",
     });
     const images = await imagesData.json();
@@ -120,7 +121,7 @@ const DashboardProductDetails = ({
 
   // fetching all product categories. It will be used for displaying categories in select category input
   const fetchCategories = async () => {
-    fetch(`http://localhost:3001/api/categories`)
+    fetch(`${API_BASE}/api/categories`)
       .then((res) => {
         return res.json();
       })
@@ -135,10 +136,10 @@ const DashboardProductDetails = ({
   }, [id]);
 
   return (
-    <div className="bg-white flex justify-start max-w-screen-2xl mx-auto xl:h-full max-xl:flex-col max-xl:gap-y-5">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       <DashboardSidebar />
-      <div className="flex flex-col gap-y-7 xl:ml-5 w-full max-xl:px-5">
-        <h1 className="text-3xl font-semibold">Product details</h1>
+      <div className="flex flex-col gap-y-7 p-6 lg:p-8 w-full max-xl:px-5">
+        <h1 className="text-2xl font-extrabold text-slate-900">Product Details</h1>
         {/* Product name input div - start */}
         <div>
           <label className="form-control w-full max-w-xs">

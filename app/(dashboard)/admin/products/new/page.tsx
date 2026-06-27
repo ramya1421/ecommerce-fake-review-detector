@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE } from "@/lib/api";
 import { DashboardSidebar } from "@/components";
 import { convertCategoryNameToURLFriendly as convertSlugToURLFriendly } from "@/utils/categoryFormating";
 import Image from "next/image";
@@ -43,7 +44,7 @@ const AddNewProduct = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
     };
-    fetch(`http://localhost:3001/api/products`, requestOptions)
+    fetch(`${API_BASE}/api/products`, requestOptions)
       .then((response) => {
         if (response.status === 201) {
           return response.json();
@@ -74,7 +75,7 @@ const AddNewProduct = () => {
     formData.append("uploadedFile", file);
 
     try {
-      const response = await fetch("http://localhost:3001/api/main-image", {
+      const response = await fetch(`${API_BASE}/api/main-image`, {
         method: "POST",
         body: formData,
       });
@@ -90,7 +91,7 @@ const AddNewProduct = () => {
   };
 
   const fetchCategories = async () => {
-    fetch(`http://localhost:3001/api/categories`)
+    fetch(`${API_BASE}/api/categories`)
       .then((res) => {
         return res.json();
       })
@@ -114,10 +115,10 @@ const AddNewProduct = () => {
   }, []);
 
   return (
-    <div className="bg-white flex justify-start max-w-screen-2xl mx-auto xl:h-full max-xl:flex-col max-xl:gap-y-5">
+    <div className="flex min-h-screen bg-[#F8FAFC]">
       <DashboardSidebar />
-      <div className="flex flex-col gap-y-7 xl:ml-5 max-xl:px-5 w-full">
-        <h1 className="text-3xl font-semibold">Add new product</h1>
+      <div className="flex flex-col gap-y-7 p-6 lg:p-8 max-xl:px-5 w-full">
+        <h1 className="text-2xl font-extrabold text-slate-900">Add New Product</h1>
         <div>
           <label className="form-control w-full max-w-xs">
             <div className="label">

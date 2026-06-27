@@ -1,13 +1,70 @@
 "use client";
-import { SectionTitle } from "@/components";
+import { API_BASE } from "@/lib/api";
+import React from "react";
 import { useProductStore } from "../_zustand/store";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { isValidCardNumber, isValidCreditCardCVVOrCVC, isValidCreditCardExpirationDate, isValidEmailAddressFormat, isValidNameOrLastname } from "@/lib/utils";
+import {
+  isValidCardNumber,
+  isValidCreditCardCVVOrCVC,
+  isValidCreditCardExpirationDate,
+  isValidEmailAddressFormat,
+  isValidNameOrLastname,
+} from "@/lib/utils";
+import {
+  FiUser,
+  FiCreditCard,
+  FiMapPin,
+  FiCheck,
+  FiLock,
+  FiLoader,
+  FiShield,
+} from "react-icons/fi";
+
+const STEPS = [
+  { id: 0, label: "Contact", icon: FiUser },
+  { id: 1, label: "Payment", icon: FiCreditCard },
+  { id: 2, label: "Shipping", icon: FiMapPin },
+];
+
+const InputField = ({
+  label,
+  id,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  autoComplete,
+}: {
+  label: string;
+  id: string;
+  type?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete?: string;
+}) => (
+  <div>
+    <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1.5">
+      {label}
+    </label>
+    <input
+      id={id}
+      type={type}
+      placeholder={placeholder}
+      autoComplete={autoComplete}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="input-premium"
+    />
+  </div>
+);
 
 const CheckoutPage = () => {
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [checkoutForm, setCheckoutForm] = useState({
     name: "",
     lastname: "",
@@ -25,68 +82,40 @@ const CheckoutPage = () => {
     postalCode: "",
     orderNotice: "",
   });
+
   const { products, total, clearCart } = useProductStore();
   const router = useRouter();
 
+  const upd = (key: keyof typeof checkoutForm) => (val: string) =>
+    setCheckoutForm((f) => ({ ...f, [key]: val }));
+
+  const shipping = 5;
+  const tax = +(total / 5).toFixed(2);
+  const orderTotal = total === 0 ? 0 : Math.round(total + tax + shipping);
+
+  const validate = (): boolean => {
+    const f = checkoutForm;
+    if (!f.name || !f.lastname || !f.phone || !f.email || !f.cardName || !f.cardNumber || !f.expirationDate || !f.cvc || !f.company || !f.adress || !f.apartment || !f.city || !f.country || !f.postalCode) {
+      toast.error("Please fill in all required fields");
+      return false;
+    }
+    if (!isValidNameOrLastname(f.name)) { toast.error("Invalid name format"); return false; }
+    if (!isValidNameOrLastname(f.lastname)) { toast.error("Invalid last name format"); return false; }
+    if (!isValidEmailAddressFormat(f.email)) { toast.error("Invalid email address"); return false; }
+    if (!isValidNameOrLastname(f.cardName)) { toast.error("Invalid card name format"); return false; }
+    if (!isValidCardNumber(f.cardNumber)) { toast.error("Invalid card number"); return false; }
+    if (!isValidCreditCardExpirationDate(f.expirationDate)) { toast.error("Invalid expiry date (MM/YY)"); return false; }
+    if (!isValidCreditCardCVVOrCVC(f.cvc)) { toast.error("Invalid CVC/CVV"); return false; }
+    return true;
+  };
+
   const makePurchase = async () => {
-    if (
-      checkoutForm.name.length > 0 &&
-      checkoutForm.lastname.length > 0 &&
-      checkoutForm.phone.length > 0 &&
-      checkoutForm.email.length > 0 &&
-      checkoutForm.cardName.length > 0 &&
-      checkoutForm.expirationDate.length > 0 &&
-      checkoutForm.cvc.length > 0 &&
-      checkoutForm.company.length > 0 &&
-      checkoutForm.adress.length > 0 &&
-      checkoutForm.apartment.length > 0 &&
-      checkoutForm.city.length > 0 &&
-      checkoutForm.country.length > 0 &&
-      checkoutForm.postalCode.length > 0
-    ) {
-      if (!isValidNameOrLastname(checkoutForm.name)) {
-        toast.error("You entered invalid format for name");
-        return;
-      }
-
-      if (!isValidNameOrLastname(checkoutForm.lastname)) {
-        toast.error("You entered invalid format for lastname");
-        return;
-      }
-
-      if (!isValidEmailAddressFormat(checkoutForm.email)) {
-        toast.error("You entered invalid format for email address");
-        return;
-      }
-
-      if (!isValidNameOrLastname(checkoutForm.cardName)) {
-        toast.error("You entered invalid format for card name");
-        return;
-      }
-
-      if (!isValidCardNumber(checkoutForm.cardNumber)) {
-        toast.error("You entered invalid format for credit card number");
-        return;
-      }
-
-      if (!isValidCreditCardExpirationDate(checkoutForm.expirationDate)) {
-        toast.error(
-          "You entered invalid format for credit card expiration date"
-        );
-        return;
-      }
-
-      if (!isValidCreditCardCVVOrCVC(checkoutForm.cvc)) {
-        toast.error("You entered invalid format for credit card CVC or CVV");
-        return;
-      }
-
-      // sending API request for creating a order
-      const response = fetch("http://localhost:3001/api/orders", {
+    if (!validate()) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/orders`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: checkoutForm.name,
           lastname: checkoutForm.lastname,
@@ -97,577 +126,215 @@ const CheckoutPage = () => {
           apartment: checkoutForm.apartment,
           postalCode: checkoutForm.postalCode,
           status: "processing",
-          total: total,
+          total,
           city: checkoutForm.city,
           country: checkoutForm.country,
           orderNotice: checkoutForm.orderNotice,
         }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const orderId: string = data.id;
-          // for every product in the order we are calling addOrderProduct function that adds fields to the customer_order_product table
-          for (let i = 0; i < products.length; i++) {
-            let productId: string = products[i].id;
-            addOrderProduct(orderId, products[i].id, products[i].amount);
-          }
-        })
-        .then(() => {
-          setCheckoutForm({
-            name: "",
-            lastname: "",
-            phone: "",
-            email: "",
-            cardName: "",
-            cardNumber: "",
-            expirationDate: "",
-            cvc: "",
-            company: "",
-            adress: "",
-            apartment: "",
-            city: "",
-            country: "",
-            postalCode: "",
-            orderNotice: "",
-          });
-          clearCart();
-          toast.success("Order created successfuly");
-          setTimeout(() => {
-            router.push("/");
-          }, 1000);
-        });
-    } else {
-      toast.error("You need to enter values in the input fields");
+      });
+      const data = await res.json();
+      const orderId: string = data.id;
+
+      await Promise.all(
+        products.map((p) =>
+          fetch(`${API_BASE}/api/order-product`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customerOrderId: orderId, productId: p.id, quantity: p.amount }),
+          })
+        )
+      );
+
+      clearCart();
+      toast.success("Order placed successfully!");
+      setTimeout(() => router.push("/"), 1200);
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const addOrderProduct = async (
-    orderId: string,
-    productId: string,
-    productQuantity: number
-  ) => {
-    // sending API POST request for the table customer_order_product that does many to many relatioship for order and product
-    const response = await fetch("http://localhost:3001/api/order-product", {
-      method: "POST", // or 'PUT'
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        customerOrderId: orderId,
-        productId: productId,
-        quantity: productQuantity,
-      }),
-    });
-  };
-
-  
-
   useEffect(() => {
     if (products.length === 0) {
-      toast.error("You don't have items in your cart");
+      toast.error("Your cart is empty");
       router.push("/cart");
     }
   }, []);
 
   return (
-    <div className="bg-white">
-      <SectionTitle title="Checkout" path="Home | Cart | Checkout" />
-      {/* Background color split screen for large screens */}
-      <div
-        className="hidden h-full w-1/2 bg-white lg:block"
-        aria-hidden="true"
-      />
-      <div
-        className="hidden h-full w-1/2 bg-gray-50 lg:block"
-        aria-hidden="true"
-      />
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="section-container py-10">
+        <h1 className="text-2xl font-extrabold text-slate-900 mb-8 flex items-center gap-2">
+          <FiLock className="text-blue-600" /> Secure Checkout
+        </h1>
 
-      <main className="relative mx-auto grid max-w-screen-2xl grid-cols-1 gap-x-16 lg:grid-cols-2 lg:px-8 xl:gap-x-48">
-        <h1 className="sr-only">Order information</h1>
+        <div className="grid lg:grid-cols-3 gap-8 items-start">
+          {/* Left — form */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Step indicator */}
+            <div className="card-premium p-4">
+              <div className="flex items-center">
+                {STEPS.map((s, i) => (
+                  <React.Fragment key={s.id}>
+                    <button
+                      onClick={() => setStep(s.id)}
+                      className={`flex items-center gap-2 text-sm font-semibold transition-colors ${step === s.id ? "text-blue-600" : step > s.id ? "text-green-600" : "text-slate-400"
+                        }`}
+                    >
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${step === s.id ? "bg-blue-600 text-white" : step > s.id ? "bg-green-500 text-white" : "bg-slate-100 text-slate-400"
+                        }`}>
+                        {step > s.id ? <FiCheck className="text-xs" /> : s.id + 1}
+                      </div>
+                      <span className="hidden sm:block">{s.label}</span>
+                    </button>
+                    {i < STEPS.length - 1 && (
+                      <div className={`flex-1 h-px mx-3 ${step > i ? "bg-green-500" : "bg-slate-200"}`} />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
 
-        <section
-          aria-labelledby="summary-heading"
-          className="bg-gray-50 px-4 pb-10 pt-16 sm:px-6 lg:col-start-2 lg:row-start-1 lg:bg-transparent lg:px-0 lg:pb-16"
-        >
-          <div className="mx-auto max-w-lg lg:max-w-none">
-            <h2
-              id="summary-heading"
-              className="text-lg font-medium text-gray-900"
-            >
-              Order summary
-            </h2>
+            {/* Step 0 — Contact */}
+            {step === 0 && (
+              <div className="card-premium p-6 space-y-4 animate-fade-in">
+                <h2 className="font-bold text-slate-900 flex items-center gap-2">
+                  <FiUser className="text-blue-600" /> Contact Information
+                </h2>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <InputField label="First Name" id="name" placeholder="John" value={checkoutForm.name} onChange={upd("name")} />
+                  <InputField label="Last Name" id="lastname" placeholder="Doe" value={checkoutForm.lastname} onChange={upd("lastname")} />
+                </div>
+                <InputField label="Phone Number" id="phone" type="tel" placeholder="+1 555 000 0000" value={checkoutForm.phone} onChange={upd("phone")} autoComplete="tel" />
+                <InputField label="Email Address" id="email" type="email" placeholder="you@example.com" value={checkoutForm.email} onChange={upd("email")} autoComplete="email" />
+                <button onClick={() => setStep(1)} className="btn-primary-custom w-full flex items-center justify-center gap-2">
+                  Continue to Payment
+                </button>
+              </div>
+            )}
 
-            <ul
-              role="list"
-              className="divide-y divide-gray-200 text-sm font-medium text-gray-900"
-            >
-              {products.map((product) => (
-                <li
-                  key={product?.id}
-                  className="flex items-start space-x-4 py-6"
-                >
-                  <Image
-                    src={product?.image ? `/${product?.image}` : "/product_placeholder.jpg"}
-                    alt={product?.title}
-                    width={80}
-                    height={80}
-                    className="h-20 w-20 flex-none rounded-md object-cover object-center"
+            {/* Step 1 — Payment */}
+            {step === 1 && (
+              <div className="card-premium p-6 space-y-4 animate-fade-in">
+                <h2 className="font-bold text-slate-900 flex items-center gap-2">
+                  <FiCreditCard className="text-blue-600" /> Payment Details
+                </h2>
+                <div className="flex items-center gap-2 text-xs text-slate-500 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
+                  <FiShield className="text-green-600 flex-shrink-0" />
+                  Your payment information is encrypted and secure. This is a demo.
+                </div>
+                <InputField label="Name on Card" id="cardname" autoComplete="cc-name" value={checkoutForm.cardName} onChange={upd("cardName")} placeholder="John Doe" />
+                <InputField label="Card Number" id="cardnum" autoComplete="cc-number" value={checkoutForm.cardNumber} onChange={upd("cardNumber")} placeholder="1234 5678 9012 3456" />
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField label="Expiry (MM/YY)" id="expiry" autoComplete="cc-exp" value={checkoutForm.expirationDate} onChange={upd("expirationDate")} placeholder="08/27" />
+                  <InputField label="CVC / CVV" id="cvc" autoComplete="cc-csc" value={checkoutForm.cvc} onChange={upd("cvc")} placeholder="123" />
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setStep(0)} className="btn-secondary-custom flex-1">Back</button>
+                  <button onClick={() => setStep(2)} className="btn-primary-custom flex-1">Continue to Shipping</button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2 — Shipping */}
+            {step === 2 && (
+              <div className="card-premium p-6 space-y-4 animate-fade-in">
+                <h2 className="font-bold text-slate-900 flex items-center gap-2">
+                  <FiMapPin className="text-blue-600" /> Shipping Address
+                </h2>
+                <InputField label="Company (optional)" id="company" value={checkoutForm.company} onChange={upd("company")} />
+                <InputField label="Street Address" id="address" autoComplete="street-address" value={checkoutForm.adress} onChange={upd("adress")} />
+                <InputField label="Apartment, suite, etc." id="apt" value={checkoutForm.apartment} onChange={upd("apartment")} />
+                <div className="grid grid-cols-3 gap-4">
+                  <InputField label="City" id="city" autoComplete="address-level2" value={checkoutForm.city} onChange={upd("city")} />
+                  <InputField label="Country" id="country" autoComplete="country" value={checkoutForm.country} onChange={upd("country")} />
+                  <InputField label="Postal Code" id="postal" autoComplete="postal-code" value={checkoutForm.postalCode} onChange={upd("postalCode")} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="notice">
+                    Order Note (optional)
+                  </label>
+                  <textarea
+                    id="notice"
+                    rows={3}
+                    value={checkoutForm.orderNotice}
+                    onChange={(e) => upd("orderNotice")(e.target.value)}
+                    placeholder="Any special instructions..."
+                    className="input-premium resize-none"
                   />
-                  <div className="flex-auto space-y-1">
-                    <h3>{product?.title}</h3>
-                    <p className="text-gray-500">x{product?.amount}</p>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setStep(1)} className="btn-secondary-custom flex-1">Back</button>
+                  <button
+                    onClick={makePurchase}
+                    disabled={loading}
+                    className="btn-primary-custom flex-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <><FiLoader className="animate-spin-ring text-sm" /> Processing...</>
+                    ) : (
+                      <><FiLock className="text-sm" /> Place Order — ${orderTotal}</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right — Order summary */}
+          <div className="card-premium p-5 sticky top-24">
+            <h2 className="font-bold text-slate-900 mb-4">Order Summary</h2>
+
+            <ul className="space-y-3 mb-4 max-h-64 overflow-y-auto pr-1">
+              {products.map((product) => (
+                <li key={product.id} className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-slate-50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    <Image
+                      src={product?.image ? `/${product.image}` : "/product_placeholder.jpg"}
+                      alt={product.title}
+                      width={48}
+                      height={48}
+                      className="object-contain w-full h-full"
+                    />
                   </div>
-                  <p className="flex-none text-base font-medium">
-                    ${product?.price}
-                  </p>
-                  <p></p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800 line-clamp-1">{product.title}</p>
+                    <p className="text-xs text-slate-400">×{product.amount}</p>
+                  </div>
+                  <span className="text-sm font-bold text-slate-900 flex-shrink-0">
+                    ${(product.price * product.amount).toFixed(2)}
+                  </span>
                 </li>
               ))}
             </ul>
 
-            <dl className="hidden space-y-6 border-t border-gray-200 pt-6 text-sm font-medium text-gray-900 lg:block">
-              <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Subtotal</dt>
-                <dd>${total}</dd>
+            <div className="space-y-2 border-t border-slate-100 pt-4 text-sm">
+              <div className="flex justify-between text-slate-600">
+                <span>Subtotal</span>
+                <span className="font-medium text-slate-900">${total.toFixed(2)}</span>
               </div>
-
-              <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Shipping</dt>
-                <dd>$5</dd>
+              <div className="flex justify-between text-slate-600">
+                <span>Shipping</span>
+                <span className="font-medium text-slate-900">${shipping.toFixed(2)}</span>
               </div>
-
-              <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Taxes</dt>
-                <dd>${total / 5}</dd>
+              <div className="flex justify-between text-slate-600">
+                <span>Tax (20%)</span>
+                <span className="font-medium text-slate-900">${tax}</span>
               </div>
-
-              <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-                <dt className="text-base">Total</dt>
-                <dd className="text-base">
-                  ${total === 0 ? 0 : Math.round(total + total / 5 + 5)}
-                </dd>
+              <div className="flex justify-between font-bold text-slate-900 text-base border-t border-slate-100 pt-2 mt-2">
+                <span>Total</span>
+                <span className="text-blue-600">${orderTotal}</span>
               </div>
-            </dl>
-          </div>
-        </section>
+            </div>
 
-        <form className="px-4 pt-16 sm:px-6 lg:col-start-1 lg:row-start-1 lg:px-0">
-          <div className="mx-auto max-w-lg lg:max-w-none">
-            <section aria-labelledby="contact-info-heading">
-              <h2
-                id="contact-info-heading"
-                className="text-lg font-medium text-gray-900"
-              >
-                Contact information
-              </h2>
-
-              <div className="mt-6">
-                <label
-                  htmlFor="name-input"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Name
-                </label>
-                <div className="mt-1">
-                  <input
-                    value={checkoutForm.name}
-                    onChange={(e) =>
-                      setCheckoutForm({
-                        ...checkoutForm,
-                        name: e.target.value,
-                      })
-                    }
-                    type="text"
-                    id="name-input"
-                    name="name-input"
-                    autoComplete="text"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label
-                  htmlFor="lastname-input"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Lastname
-                </label>
-                <div className="mt-1">
-                  <input
-                    value={checkoutForm.lastname}
-                    onChange={(e) =>
-                      setCheckoutForm({
-                        ...checkoutForm,
-                        lastname: e.target.value,
-                      })
-                    }
-                    type="text"
-                    id="lastname-input"
-                    name="lastname-input"
-                    autoComplete="text"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label
-                  htmlFor="phone-input"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Phone number
-                </label>
-                <div className="mt-1">
-                  <input
-                    value={checkoutForm.phone}
-                    onChange={(e) =>
-                      setCheckoutForm({
-                        ...checkoutForm,
-                        phone: e.target.value,
-                      })
-                    }
-                    type="tel"
-                    id="phone-input"
-                    name="phone-input"
-                    autoComplete="text"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label
-                  htmlFor="email-address"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email address
-                </label>
-                <div className="mt-1">
-                  <input
-                    value={checkoutForm.email}
-                    onChange={(e) =>
-                      setCheckoutForm({
-                        ...checkoutForm,
-                        email: e.target.value,
-                      })
-                    }
-                    type="email"
-                    id="email-address"
-                    name="email-address"
-                    autoComplete="email"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <section aria-labelledby="payment-heading" className="mt-10">
-              <h2
-                id="payment-heading"
-                className="text-lg font-medium text-gray-900"
-              >
-                Payment details
-              </h2>
-
-              <div className="mt-6 grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4">
-                <div className="col-span-3 sm:col-span-4">
-                  <label
-                    htmlFor="name-on-card"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Name on card
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="name-on-card"
-                      name="name-on-card"
-                      autoComplete="cc-name"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.cardName}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          cardName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="col-span-3 sm:col-span-4">
-                  <label
-                    htmlFor="card-number"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Card number
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="card-number"
-                      name="card-number"
-                      autoComplete="cc-number"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.cardNumber}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          cardNumber: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="col-span-2 sm:col-span-3">
-                  <label
-                    htmlFor="expiration-date"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Expiration date (MM/YY)
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="expiration-date"
-                      id="expiration-date"
-                      autoComplete="cc-exp"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.expirationDate}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          expirationDate: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="cvc"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    CVC or CVV
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="cvc"
-                      id="cvc"
-                      autoComplete="csc"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.cvc}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          cvc: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section aria-labelledby="shipping-heading" className="mt-10">
-              <h2
-                id="shipping-heading"
-                className="text-lg font-medium text-gray-900"
-              >
-                Shipping address
-              </h2>
-
-              <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-3">
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="company"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Company
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="company"
-                      name="company"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.company}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          company: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="address"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Address
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="address"
-                      name="address"
-                      autoComplete="street-address"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.adress}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          adress: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="apartment"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Apartment, suite, etc.
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="apartment"
-                      name="apartment"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.apartment}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          apartment: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="city"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    City
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      autoComplete="address-level2"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.city}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          city: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="region"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Country
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="region"
-                      name="region"
-                      autoComplete="address-level1"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.country}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          country: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="postal-code"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Postal code
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="postal-code"
-                      name="postal-code"
-                      autoComplete="postal-code"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      value={checkoutForm.postalCode}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          postalCode: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label
-                    htmlFor="order-notice"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Order notice
-                  </label>
-                  <div className="mt-1">
-                    <textarea
-                      className="textarea textarea-bordered textarea-lg w-full"
-                      id="order-notice"
-                      name="order-notice"
-                      autoComplete="order-notice"
-                      value={checkoutForm.orderNotice}
-                      onChange={(e) =>
-                        setCheckoutForm({
-                          ...checkoutForm,
-                          orderNotice: e.target.value,
-                        })
-                      }
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <div className="mt-10 border-t border-gray-200 pt-6 ml-0">
-              <button
-                type="button"
-                onClick={makePurchase}
-                className="w-full rounded-md border border-transparent bg-blue-500 px-20 py-2 text-lg font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last"
-              >
-                Pay Now
-              </button>
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500 bg-slate-50 rounded-xl px-3 py-2">
+              <FiLock className="text-green-500 flex-shrink-0" />
+              Secure 256-bit SSL encrypted checkout
             </div>
           </div>
-        </form>
-      </main>
+        </div>
+      </div>
     </div>
   );
 };
