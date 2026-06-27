@@ -1,11 +1,8 @@
 {
     "framework": "nextjs",
-    "buildCommand": "npx prisma generate && next build",
+    "buildCommand": "npm run build",
     "installCommand": "npm install",
     "regions": [
         "iad1"
-    ],
-    "env": {
-        "NEXTAUTH_URL": "https://your-project.vercel.app"
-    }
+    ]
 }

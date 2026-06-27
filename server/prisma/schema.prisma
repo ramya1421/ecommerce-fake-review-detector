@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// TrustShop Server Prisma Schema
 
 generator client {
   provider = "prisma-client-js"
@@ -20,13 +16,14 @@ model Product {
   mainImage      String
   price          Int                      @default(0)
   rating         Int                      @default(0)
-  description    String
+  description    String                   @db.Text
   manufacturer   String
   inStock        Int                      @default(1)
   categoryId     String
   category       Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   customerOrders customer_order_product[]
   Wishlist       Wishlist[]
+  reviews        Review[]
 }
 
 model Image {
@@ -41,6 +38,19 @@ model User {
   password String?
   role     String?    @default("user")
   Wishlist Wishlist[]
+  reviews  Review[]
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?  @db.Text
+  isFake    Boolean  @default(false)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
 }
 
 model Customer_order {
@@ -74,7 +84,7 @@ model customer_order_product {
 model Category {
   id       String    @id @default(uuid())
   name     String    @unique
-  products Product[] // Define a one-to-many relationship
+  products Product[]
 }
 
 model Wishlist {
