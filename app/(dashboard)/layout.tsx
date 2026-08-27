@@ -1,4 +1,5 @@
 import { API_BASE } from "@/lib/api";
+import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 
@@ -9,7 +10,7 @@ export default async function Layout({
 }>) {
   const session: {
     user: { name: string; email: string; image: string };
-  } | null = await getServerSession();
+  } | null = await getServerSession(authOptions);
 
   if (!session) {
     redirect("/login");
