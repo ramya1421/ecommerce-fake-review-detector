@@ -34,12 +34,12 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const name = (form[0] as HTMLInputElement).value;
-    const lastname = (form[1] as HTMLInputElement).value;
-    const email = (form[2] as HTMLInputElement).value;
-    const password = (form[3] as HTMLInputElement).value;
-    const confirmPassword = (form[4] as HTMLInputElement).value;
+
+    // Use getElementById for reliable field access — form index is fragile
+    // when there are buttons and checkboxes mixed in
+    const email = (document.getElementById("email") as HTMLInputElement).value.trim();
+    const password = (document.getElementById("password") as HTMLInputElement).value;
+    const confirmPassword = (document.getElementById("confirmpassword") as HTMLInputElement).value;
 
     if (!isValidEmail(email)) { setError("Invalid email address"); toast.error("Invalid email"); return; }
     if (!password || password.length < 8) { setError("Password must be at least 8 characters"); toast.error("Password too short"); return; }
@@ -53,9 +53,10 @@ const RegisterPage = () => {
         body: JSON.stringify({ email, password }),
       });
       if (res.status === 400) {
-        toast.error("This email is already registered");
-        setError("Email already in use");
-      } else if (res.status === 200) {
+        const data = await res.json();
+        toast.error(data.message ?? "This email is already registered");
+        setError(data.message ?? "Email already in use");
+      } else if (res.status === 201) {
         setError("");
         toast.success("Account created! Please sign in.");
         router.push("/login");
