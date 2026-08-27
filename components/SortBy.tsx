@@ -1,14 +1,14 @@
 "use client";
 import React from "react";
 import { useSortStore } from "@/app/_zustand/sortStore";
-import { FiChevronsUpDown } from "react-icons/fi";
+import { FiChevronsUp } from "react-icons/fi";
 
 const SortBy = () => {
   const { sortBy, changeSortBy } = useSortStore();
 
   return (
     <div className="flex items-center gap-2">
-      <FiChevronsUpDown className="text-slate-400 text-sm flex-shrink-0" />
+      <FiChevronsUp className="text-slate-400 text-sm flex-shrink-0" />
       <select
         value={sortBy}
         onChange={(e) => changeSortBy(e.target.value)}
