@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import { FiShield, FiGithub, FiLinkedin, FiTwitter, FiMail, FiArrowRight, FiGrid } from "react-icons/fi";
+import { FiShield, FiMail, FiArrowRight, FiGrid, FiCode, FiUsers, FiSend } from "react-icons/fi";
 
 const LINKS = {
   shop: [
@@ -92,9 +92,9 @@ const Footer = () => {
           {/* Social icons */}
           <div className="flex items-center gap-3">
             {[
-              { icon: FiGithub, href: "https://github.com", label: "GitHub" },
-              { icon: FiLinkedin, href: "https://linkedin.com", label: "LinkedIn" },
-              { icon: FiTwitter, href: "https://twitter.com", label: "Twitter" },
+              { icon: FiCode, href: "https://github.com", label: "GitHub" },
+              { icon: FiUsers, href: "https://linkedin.com", label: "LinkedIn" },
+              { icon: FiSend, href: "https://twitter.com", label: "Twitter" },
               { icon: FiMail, href: "mailto:support@trustshop.com", label: "Email" },
             ].map((s) => (
               <a
