@@ -10,12 +10,13 @@ WORKDIR /app
 # openssl required by Prisma
 RUN apk add --no-cache libc6-compat openssl
 
-COPY package.json package-lock.json ./
+COPY package.json ./
 COPY prisma ./prisma/
 
-RUN npm ci --omit=dev
+# Use npm install instead of npm ci — more forgiving of lockfile version mismatches
+RUN npm install --omit=dev
 
-# Generate Prisma client in the deps stage
+# Generate Prisma client
 RUN npx prisma generate
 
 # ── Stage 2: production runner ────────────────────────────────────────────────
@@ -30,7 +31,7 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 expressjs
 
-# Copy deps + generated Prisma client
+# Copy deps + generated Prisma client from stage 1
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
 
@@ -43,5 +44,4 @@ EXPOSE 3001
 ENV PORT=3001
 
 # Run migrations then start the Express server
-# Using sh -c so we can chain commands
 CMD sh -c "npx prisma migrate deploy && node app.js"
