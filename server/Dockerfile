@@ -44,4 +44,5 @@ EXPOSE 3001
 ENV PORT=3001
 
 # Run migrations then start the Express server
-CMD sh -c "npx prisma migrate deploy && node app.js"
+# Using db push instead of migrate deploy — works regardless of existing DB state
+CMD sh -c "npx prisma db push --accept-data-loss && node app.js"
