@@ -14,6 +14,7 @@ interface Product {
   inStock: boolean | number;
   rating?: number;
   category?: { name: string };
+  _count?: { reviews: number };
 }
 
 interface ProductItemProps {
@@ -24,7 +25,9 @@ interface ProductItemProps {
 const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
   const [imgError, setImgError] = useState(false);
   const rating = product.rating ?? 4;
-  const reviewsCount = Math.floor(Math.random() * 80) + 8;
+  // Use real review count from DB (_count included by the products API).
+  // No Math.random() — that causes SSR/client hydration mismatches.
+  const reviewsCount = product._count?.reviews ?? 0;
   // Simulate original price for discount display
   const originalPrice = Math.round(product.price * 1.2);
   const discountPct = 17;
@@ -98,8 +101,8 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
             <FiStar
               key={i}
               className={`text-xs ${i <= Math.round(rating)
-                  ? "text-yellow-400 fill-yellow-400"
-                  : "text-slate-200"
+                ? "text-yellow-400 fill-yellow-400"
+                : "text-slate-200"
                 }`}
             />
           ))}
@@ -120,8 +123,8 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
           </div>
           <span
             className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${inStock
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-500"
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-500"
               }`}
           >
             {inStock ? "In Stock" : "Out of Stock"}

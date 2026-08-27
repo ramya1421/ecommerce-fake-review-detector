@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# TrustShop — Local Docker Compose
+# For LOCAL TESTING ONLY. Render does NOT use this file.
+#
+# Usage:
+#   docker-compose up --build
+#
+# Services:
+#   db       — MySQL 8 database
+#   backend  — Express API on port 3001
+#   frontend — Next.js on port 3000
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+
+  # ── MySQL database ──────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: trustshop
+      MYSQL_USER: trustshop
+      MYSQL_PASSWORD: trustshoppass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Express backend ─────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: "mysql://trustshop:trustshoppass@db:3306/trustshop"
+      NODE_ENV: development
+      PORT: 3001
+      FRONTEND_URL: "http://localhost:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ── Next.js frontend ────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Baked in at build time because it's a NEXT_PUBLIC_ var
+        NEXT_PUBLIC_API_URL: "http://localhost:3001"
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "mysql://trustshop:trustshoppass@db:3306/trustshop"
+      NEXTAUTH_SECRET: "local-dev-secret-change-in-production"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXT_PUBLIC_API_URL: "http://localhost:3001"
+      NODE_ENV: production
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

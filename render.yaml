@@ -1,15 +1,49 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# TrustShop — Render Blueprint
+# Defines both services. Render builds each from its own Dockerfile.
+# Docs: https://render.com/docs/blueprint-spec
+# ─────────────────────────────────────────────────────────────────────────────
+
 services:
+
+  # ── Express Backend ─────────────────────────────────────────────────────────
   - type: web
     name: trustshop-backend
-    env: node
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
     region: oregon
     plan: free
-    rootDir: server
-    buildCommand: npm install
-    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # Set manually in Render dashboard — never commit this
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: FRONTEND_URL
+        sync: false          # Set to your Vercel/Render frontend URL after deploying frontend
+
+  # ── Next.js Frontend ────────────────────────────────────────────────────────
+  - type: web
+    name: trustshop-frontend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: oregon
+    plan: free
+    buildArgs:
+      # NEXT_PUBLIC_* vars must be baked in at build time
+      - key: NEXT_PUBLIC_API_URL
+        value: https://trustshop-backend.onrender.com   # update to your actual backend URL
     envVars:
       - key: DATABASE_URL
         sync: false
+      - key: NEXTAUTH_SECRET
+        generateValue: true   # Render auto-generates a secure random value
+      - key: NEXTAUTH_URL
+        sync: false           # Set to your frontend Render URL after first deploy
+      - key: NEXT_PUBLIC_API_URL
+        value: https://trustshop-backend.onrender.com   # update to match above
       - key: NODE_ENV
         value: production
-    autoDeploy: true

@@ -12,14 +12,20 @@ const slugRouter = require("./routes/slugs");
 const orderProductRouter = require("./routes/customer_order_product");
 const wishlistRouter = require("./routes/wishlist");
 const reviewRoutes = require("./routes/reviewRoutes");
+const statsRouter = require("./routes/stats");
 var cors = require("cors");
 
 const app = express();
 
 app.use(express.json());
+
+// In production, restrict CORS to the deployed Vercel frontend URL.
+// Set FRONTEND_URL env var on Render to your Vercel domain.
+// Falls back to * in development so local Next.js still works.
+const allowedOrigin = process.env.FRONTEND_URL || "*";
 app.use(
   cors({
-    origin: "*",
+    origin: allowedOrigin,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -40,6 +46,7 @@ app.use("/api/order-product", orderProductRouter);
 app.use("/api/slugs", slugRouter);
 app.use("/api/wishlist", wishlistRouter);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/stats", statsRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

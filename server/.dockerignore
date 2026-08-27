@@ -1,0 +1,23 @@
+# Dependencies — reinstalled inside Docker
+node_modules
+npm-debug.log*
+
+# Local env files — secrets injected via Render env vars
+.env
+.env.*
+!.env.example
+
+# Git + editor
+.git
+.gitignore
+.vscode
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Misc
+.DS_Store
+*.pem
+coverage
+product.json

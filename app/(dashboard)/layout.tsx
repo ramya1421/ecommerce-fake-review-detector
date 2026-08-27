@@ -22,13 +22,20 @@ export default async function Layout({
       `${API_BASE}/api/users/email/${email}`,
       { cache: "no-store" }
     );
+
+    if (!res.ok) {
+      // Backend returned an error (4xx/5xx) — deny access
+      redirect("/");
+    }
+
     const data = await res.json();
 
-    if (data.role === "user") {
+    if (!data || data.role !== "admin") {
       redirect("/");
     }
   } catch (_) {
-    // If backend is offline during build/dev, allow through
+    // Backend is unreachable — fail CLOSED: deny access rather than allow through
+    redirect("/");
   }
 
   return <>{children}</>;

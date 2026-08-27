@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Required for Docker standalone builds — creates a self-contained output
+  // in .next/standalone that doesn't need the full node_modules at runtime
+  output: "standalone",
   images: {
     remotePatterns: [
       {

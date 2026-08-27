@@ -29,79 +29,62 @@ export const useProductStore = create<State & Actions>()(
       products: [],
       allQuantity: 0,
       total: 0,
+
       addToCart: (newProduct) => {
         set((state) => {
-          const cartItem = state.products.find(
-            (item) => item.id === newProduct.id
-          );
-          if (!cartItem) {
+          const existing = state.products.find((p) => p.id === newProduct.id);
+          if (!existing) {
+            // New item — append it
             return { products: [...state.products, newProduct] };
-          } else {
-            state.products.map((product) => {
-              if (product.id === cartItem.id) {
-                product.amount += newProduct.amount;
-              }
-            });
           }
-          return { products: [...state.products] };
-        });
-      },
-      clearCart: () => {
-        set((state: any) => {
-          
+          // Existing item — return a new array with the updated amount
           return {
-            products: [],
-            allQuantity: 0,
-            total: 0,
+            products: state.products.map((p) =>
+              p.id === newProduct.id
+                ? { ...p, amount: p.amount + newProduct.amount }
+                : p
+            ),
           };
         });
       },
+
       removeFromCart: (id) => {
-        set((state) => {
-          state.products = state.products.filter(
-            (product: ProductInCart) => product.id !== id
-          );
-          return { products: state.products };
-        });
+        // Return a new array — do NOT mutate state.products directly
+        set((state) => ({
+          products: state.products.filter((p) => p.id !== id),
+        }));
+      },
+
+      updateCartAmount: (id, amount) => {
+        // Return a new array with the updated amount — do NOT mutate
+        set((state) => ({
+          products: state.products.map((p) =>
+            p.id === id ? { ...p, amount } : p
+          ),
+        }));
       },
 
       calculateTotals: () => {
         set((state) => {
-          let amount = 0;
-          let total = 0;
-          state.products.forEach((item) => {
-            amount += item.amount;
-            total += item.amount * item.price;
-          });
-
-          return {
-            products: state.products,
-            allQuantity: amount,
-            total: total,
-          };
+          const allQuantity = state.products.reduce(
+            (sum, item) => sum + item.amount,
+            0
+          );
+          const total = state.products.reduce(
+            (sum, item) => sum + item.amount * item.price,
+            0
+          );
+          return { allQuantity, total };
         });
       },
-      updateCartAmount: (id, amount) => {
-        set((state) => {
-          const cartItem = state.products.find((item) => item.id === id);
 
-          if (!cartItem) {
-            return { products: [...state.products] };
-          } else {
-            state.products.map((product) => {
-              if (product.id === cartItem.id) {
-                product.amount = amount;
-              }
-            });
-          }
-
-          return { products: [...state.products] };
-        });
+      clearCart: () => {
+        set({ products: [], allQuantity: 0, total: 0 });
       },
     }),
     {
-      name: "products-storage", // name of the item in the storage (must be unique)
-      storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      name: "products-storage",
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );

@@ -9,7 +9,6 @@ import {
   FiTrash2,
   FiShoppingBag,
   FiArrowRight,
-  FiTag,
 } from "react-icons/fi";
 import { useProductStore } from "../_zustand/store";
 import Link from "next/link";
@@ -123,21 +122,6 @@ const CartPage = () => {
                 <h2 className="font-bold text-slate-900 text-base">
                   Order Summary
                 </h2>
-
-                {/* Coupon */}
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <FiTag className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
-                    <input
-                      type="text"
-                      placeholder="Coupon code"
-                      className="input-premium pl-9 text-sm py-2.5"
-                    />
-                  </div>
-                  <button className="btn-secondary-custom text-sm py-2.5 px-4">
-                    Apply
-                  </button>
-                </div>
 
                 <div className="space-y-3 text-sm border-t border-slate-100 pt-4">
                   <div className="flex justify-between text-slate-600">

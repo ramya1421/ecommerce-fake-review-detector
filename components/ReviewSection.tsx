@@ -2,6 +2,7 @@
 
 import { API_BASE } from "@/lib/api";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import {
   FiShield,
@@ -131,8 +132,8 @@ function AIAnalysisCard({ review }: { review: Review }) {
   return (
     <div
       className={`mt-3 rounded-xl border p-4 ${isFake
-          ? "bg-red-50/60 border-red-200"
-          : "bg-green-50/60 border-green-200"
+        ? "bg-red-50/60 border-red-200"
+        : "bg-green-50/60 border-green-200"
         }`}
     >
       {/* AI badge header */}
@@ -264,8 +265,8 @@ function ReviewCard({ review }: { review: Review }) {
       <button
         onClick={() => setShowAnalysis((v) => !v)}
         className={`flex items-center gap-1.5 text-xs font-semibold transition-colors ${analysis.isFake
-            ? "text-red-500 hover:text-red-600"
-            : "text-blue-600 hover:text-blue-700"
+          ? "text-red-500 hover:text-red-600"
+          : "text-blue-600 hover:text-blue-700"
           }`}
       >
         {analysis.isFake ? (
@@ -286,6 +287,7 @@ function ReviewCard({ review }: { review: Review }) {
 
 /* ─── Main component ─── */
 export default function ReviewSection({ productId }: { productId: string | number }) {
+  const { data: session } = useSession();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -321,6 +323,9 @@ export default function ReviewSection({ productId }: { productId: string | numbe
       return;
     }
 
+    // Use the logged-in user's ID. Fall back to "guest-user" only if not authenticated.
+    const userId = (session?.user as any)?.id ?? "guest-user";
+
     setSubmitting(true);
     try {
       // NOTE: This calls the Next.js API route which contains the fake detection logic.
@@ -330,7 +335,7 @@ export default function ReviewSection({ productId }: { productId: string | numbe
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId,
-          userId: "guest-user",
+          userId,
           rating,
           comment,
         }),
@@ -465,8 +470,8 @@ export default function ReviewSection({ productId }: { productId: string | numbe
                   >
                     <FiStar
                       className={`${star <= (hoverRating || rating)
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-slate-200"
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-slate-200"
                         } transition-colors`}
                     />
                   </button>
@@ -512,6 +517,15 @@ export default function ReviewSection({ productId }: { productId: string | numbe
                 </>
               )}
             </button>
+            {!session && (
+              <p className="text-[11px] text-slate-400 text-center mt-2">
+                You are not signed in — your review will be posted as a guest.{" "}
+                <a href="/login" className="text-blue-500 hover:underline">
+                  Sign in
+                </a>{" "}
+                to link it to your account.
+              </p>
+            )}
           </div>
         </div>
       </div>

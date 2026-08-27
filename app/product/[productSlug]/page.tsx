@@ -25,23 +25,34 @@ interface ImageItem {
 }
 
 const SingleProductPage = async ({ params }: SingleProductPageProps) => {
-  // Fetch product — unchanged backend call
-  const data = await fetch(
-    `${API_BASE}/api/slugs/${params.productSlug}`,
-    { cache: "no-store" }
-  );
-  const product = await data.json();
+  // Fetch product — fail to notFound() on any network or parse error
+  let product: any;
+  try {
+    const data = await fetch(
+      `${API_BASE}/api/slugs/${params.productSlug}`,
+      { cache: "no-store" }
+    );
+    if (!data.ok) notFound();
+    product = await data.json();
+  } catch {
+    notFound();
+  }
 
   if (!product || product.error) {
     notFound();
   }
 
-  // Fetch product images
-  const imagesData = await fetch(
-    `${API_BASE}/api/images/${product.id}`,
-    { cache: "no-store" }
-  );
-  const images: ImageItem[] = await imagesData.json();
+  // Fetch product images — gracefully degrade to empty array if backend is down
+  let images: ImageItem[] = [];
+  try {
+    const imagesData = await fetch(
+      `${API_BASE}/api/images/${product.id}`,
+      { cache: "no-store" }
+    );
+    if (imagesData.ok) images = await imagesData.json();
+  } catch {
+    // Non-fatal — page still renders without the thumbnail strip
+  }
 
   const originalPrice = Math.round(product.price * 1.2);
   const discountPct = 17;
