@@ -1,22 +1,91 @@
-# TrustShop — Fake Review Detection E-Commerce Platform
+<div align="center">
 
-> Shop smarter. Every review analyzed for authenticity in real time.
+# 🛡️ TrustShop
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.1-black?logo=next.js)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.3-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
-[![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma)](https://prisma.io)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+### *Shop smarter. Every review analyzed for authenticity in real time.*
+
+<br/>
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_TrustShop-6366f1?style=for-the-badge)](https://ecommerce-fake-review-detector.vercel.app)
+[![Demo Video](https://img.shields.io/badge/🎬_Demo_Video-Watch_Now-ef4444?style=for-the-badge)](https://docs.google.com/videos/d/1Uz7ThexL7Eq_l3rHu4hhp0ml8xQJvXKCM3Wgp61Im78/play?usp=sharing)
+
+<br/>
+
+[![Next.js](https://img.shields.io/badge/Next.js-14.1-black?logo=next.js&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.3-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://prisma.io)
+[![License](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
+
+<br/>
+
+> **TrustShop** is a full-stack e-commerce platform with an integrated fake review detection engine.  
+> Every review is scored for **authenticity**, **confidence**, and **spam probability** — in real time.
+
+</div>
 
 ---
 
-## Overview
+## 🎬 Demo
 
-**TrustShop** is a full-stack e-commerce platform with an integrated fake review detection system. Every product review is analyzed in real time and displayed with authenticity scores, confidence ratings, and spam probability — giving shoppers full transparency before making a purchase.
+<div align="center">
+
+**[▶ Watch the Full Demo Video](https://docs.google.com/videos/d/1Uz7ThexL7Eq_l3rHu4hhp0ml8xQJvXKCM3Wgp61Im78/play?usp=sharing)**
+
+*See fake review detection, the admin dashboard, and the full shopping flow in action.*
+
+</div>
 
 ---
 
-## Architecture
+## 🚀 Live Deployment
+
+| Service | URL | Platform |
+|:--------|:----|:---------|
+| 🌐 **Frontend** | [ecommerce-fake-review-detector.vercel.app](https://ecommerce-fake-review-detector.vercel.app) | Vercel |
+| ⚙️ **Backend API** | Deployed on Render | Render |
+| 🗄️ **Database** | Hosted MySQL | Railway |
+
+---
+
+## ✨ Features at a Glance
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 🛍️ Customer Store
+- Modern landing page with hero, categories & testimonials
+- Product catalog with filters, sort, search & pagination
+- Shopping cart & multi-step checkout
+- Wishlist & email/password authentication
+
+</td>
+<td width="33%" valign="top">
+
+### 🔍 Fake Review Detection
+- Real-time heuristic analysis on every review
+- **Authenticity score** progress bar
+- **Confidence %** rating
+- **Spam probability** indicator
+- 🟢 Genuine / 🔴 Fake badge per review
+
+</td>
+<td width="33%" valign="top">
+
+### 🛠️ Admin Dashboard
+- Stats: revenue, orders, users, genuine vs fake reviews
+- Revenue chart & review quality visualization
+- Full CRUD — products, orders, users, categories
+- Review moderation panel
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -35,82 +104,57 @@
         └──────────────┬──────────────┘
                        │
               ┌────────▼────────┐
-              │   MySQL (Railway│
-              │   via Prisma)   │
+              │   MySQL         │
+              │  (Railway +     │
+              │   Prisma ORM)   │
               └─────────────────┘
 ```
 
 ---
 
-## Features
-
-### Customer-Facing
-- Modern landing page with hero, categories, featured products, testimonials
-- **Fake Review Detection UI** — authenticity score, confidence %, spam probability per review
-- Product catalog with filters, sort, search, pagination
-- Shopping cart, multi-step checkout, wishlist
-- Email/password authentication
-
-### Admin Dashboard
-- Stats cards (revenue, orders, users, genuine vs fake reviews)
-- Revenue chart, review quality visualization
-- Full CRUD for products, orders, users, categories
-
-### Fake Review Detection
-- Rule-based heuristic detection on every submitted review
-- `isFake` flag stored per review in database
-- Visual progress bars for authenticity, confidence, and spam scores
-- Green "Genuine" / Red "Fake" badges per review
-
----
-
-## Tech Stack
+## 🧰 Tech Stack
 
 | Layer | Technology |
-|---|---|
-| Frontend | Next.js 14 (App Router), TypeScript |
-| Styling | Tailwind CSS 3, DaisyUI 4 |
-| State | Zustand 4 |
-| Auth | NextAuth v4 |
-| Backend | Express.js (Node) |
-| ORM | Prisma 5 |
-| Database | MySQL |
-| Deployment — Frontend | Vercel |
-| Deployment — Backend | Render |
-| Deployment — Database | Railway |
+|:------|:-----------|
+| **Frontend** | Next.js 14 (App Router), TypeScript |
+| **Styling** | Tailwind CSS 3, DaisyUI 4 |
+| **State Management** | Zustand 4 |
+| **Authentication** | NextAuth v4 |
+| **Backend** | Express.js (Node.js) |
+| **ORM** | Prisma 5 |
+| **Database** | MySQL |
+| **Frontend Hosting** | Vercel |
+| **Backend Hosting** | Render |
+| **Database Hosting** | Railway |
 
 ---
 
-## Installation
+## 📦 Installation
 
 ### Prerequisites
 - Node.js 18+
 - MySQL database
 
-### 1. Clone
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/ramya1421/ecommerce-fake-review-detector.git
 cd ecommerce-fake-review-detector
 ```
 
-### 2. Install frontend dependencies
+### 2. Install dependencies
 
 ```bash
+# Frontend
 npm install
+
+# Backend
+cd server && npm install && cd ..
 ```
 
-### 3. Install backend dependencies
+### 3. Configure environment variables
 
-```bash
-cd server
-npm install
-cd ..
-```
-
-### 4. Environment variables
-
-Root `.env`:
+**Root `.env`:**
 ```env
 DATABASE_URL="mysql://user:password@host:port/dbname"
 NEXTAUTH_SECRET="your-secret"
@@ -118,13 +162,13 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXT_PUBLIC_API_URL="http://localhost:3001"
 ```
 
-Server `.env`:
+**Server `.env`:**
 ```env
 DATABASE_URL="mysql://user:password@host:port/dbname"
 PORT=3001
 ```
 
-### 5. Database setup
+### 4. Set up the database
 
 ```bash
 npx prisma generate
@@ -133,33 +177,35 @@ npx prisma db push
 
 ---
 
-## Running Locally
+## ▶️ Running Locally
 
 ```bash
-# Terminal 1 — backend
+# Terminal 1 — start the backend
 cd server
 node app.js
 
-# Terminal 2 — frontend
+# Terminal 2 — start the frontend
 npm run dev
 ```
 
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
+
 ---
 
-## Deployment
+## 🌍 Deployment Guide
 
 | Service | Platform | Notes |
-|---|---|---|
-| Frontend | Vercel | Connect GitHub repo, add env vars |
-| Backend | Render | Root dir: `server/`, start: `node app.js` |
-| Database | Railway | MySQL, copy connection string |
+|:--------|:---------|:------|
+| Frontend | **Vercel** | Connect GitHub repo, add env vars in dashboard |
+| Backend | **Render** | Root dir: `server/`, start command: `node app.js` |
+| Database | **Railway** | Provision MySQL, copy connection string to `.env` |
 
 ---
 
-## Environment Variables
+## 🔐 Environment Variables Reference
 
 | Variable | Required | Description |
-|---|---|---|
+|:---------|:--------:|:------------|
 | `DATABASE_URL` | ✅ | MySQL connection string |
 | `NEXTAUTH_SECRET` | ✅ | JWT signing secret |
 | `NEXTAUTH_URL` | ✅ | Full base URL of the app |
@@ -167,14 +213,14 @@ npm run dev
 
 ---
 
-## Folder Structure
+## 📁 Folder Structure
 
 ```
 ecommerce-fake-review-detector/
 ├── app/                    # Next.js App Router pages
-│   ├── (dashboard)/admin/  # Admin panel
+│   ├── (dashboard)/admin/  # Admin panel routes
 │   ├── api/                # Next.js API routes
-│   ├── _zustand/           # State stores
+│   ├── _zustand/           # Zustand state stores
 │   └── ...                 # All page routes
 ├── components/             # Reusable React components
 ├── server/                 # Express.js backend
@@ -189,6 +235,16 @@ ecommerce-fake-review-detector/
 
 ---
 
-## License
+## 📄 License
 
-[MIT](LICENSE)
+[MIT](LICENSE) — feel free to use, modify, and distribute.
+
+---
+
+<div align="center">
+
+Made with ❤️ by [ramya1421](https://github.com/ramya1421)
+
+⭐ **Star this repo if you found it useful!**
+
+</div>
